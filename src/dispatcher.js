@@ -42,12 +42,13 @@ class Dispatcher {
 	/**
 	 * Dispatch the payload to registered callbacks.
 	 *
-	 * @param {JsonObject}	payload			The payload to send to each of the resisted functions
+	 * @param {DispatcherPayload}	payload		The payload to send to each of the resisted
+	 *											functions
 	 *
-	 * @return {Promise<Array<JsonObject>>}	A promise that contains an array of results from each
-	 *										registered callback, that return something.
+	 * @return {Promise<Array<DispatcherResponse>>}		A promise that contains an array of results
+	 *													from each registered callback
 	 */
-	dispatch(payload: JsonObject): Promise<Array<JsonObject>> {
+	dispatch(payload: DispatcherPayload): Promise<Array<DispatcherResponse>> {
 		return Promise.all(callbackMapToPromiseArray(payload, this._callbacks));
 	}
 }
@@ -82,9 +83,9 @@ class NetworkDispatcher extends Dispatcher {
  * The dispatcher sub-class to run on the sever and communicate with the client.
  */
 class ServerDispatcher extends NetworkDispatcher {
-	_encode: (results: Array<JsonObject>) => Promise<JsonObject> | JsonObject;
+	_encode: DispatcherEncodeFunc;
 
-	constructor(encodeCallback: Function) {
+	constructor(encodeCallback: DispatcherEncodeFunc) {
 		super();
 		this._encode = encodeCallback;
 	}
@@ -106,12 +107,13 @@ class ServerDispatcher extends NetworkDispatcher {
 	/**
 	 * Dispatch the payload to callbacks that are registered for the server.
 	 *
-	 * @param {JsonObject}		payload		The payload to send to each of the resisted functions
+	 * @param {DispatcherPayload}		payload		The payload to send to each of the resisted 
+	 *												functions
 	 *
-	 * @return {Promise<Array<JsonObject>>}	A promise that contains an array of results from each
-	 *										registered callback, that return something.
+	 * @return {Promise<Array<DispatcherResponse>>}	A promise that contains an array of results from
+	 *												each registered callback, that return something.
 	 */
-	dispatchForSeverRequest(payload: JsonObject): Promise<JsonObject> {
+	dispatchForSeverRequest(payload: DispatcherPayload): Promise<DispatcherResponse> {
 		var callbacks = super._getSeverCallbacks(payload);
 		return Promise.all(callbackMapToPromiseArray(payload, callbacks)).then(this._encode);
 	}
@@ -121,11 +123,11 @@ class ServerDispatcher extends NetworkDispatcher {
  * The dispatcher sub-class to run on the client and communicate with the server.
  */
 class ClientDispatcher extends NetworkDispatcher {
-	_sendData: (payload: JsonObject) => Promise<JsonObject> | JsonObject;
-	_decode: (result: JsonObject) => Promise<JsonObject> | JsonObject;
+	_sendData: DispatcherSendDataFunc;
+	_decode: DispatcherDecodeFunc;
 	_serverSymbol: ?Symbol;
 
-	constructor(sendDataCallback: Function, decodeCallback: Function) {
+	constructor(sendDataCallback: DispatcherSendDataFunc, decodeCallback: DispatcherDecodeFunc) {
 		super();
 		this._sendData = sendDataCallback;
 		this._decode = decodeCallback;
@@ -143,9 +145,9 @@ class ClientDispatcher extends NetworkDispatcher {
 	registerForServer(callback: DispatcherFunc): Symbol {
 		// Register send callback if this is the first sever callback
 		if(!this._serverSymbol) {
-			this._serverSymbol = super.register((payload) => {
-				return this._sendData(payload).then(this._decode);
-			});
+			this._serverSymbol = super.register(
+				(payload) => Promise.resolve(this._sendData(payload)).then(this._decode)
+			);
 		}
 
 		// Create reference symbol
@@ -178,9 +180,9 @@ class ClientDispatcher extends NetworkDispatcher {
 //	Helper functions
 /*------------------------------------------------------------------------------------------------*/
 function callbackMapToPromiseArray(
-			payload:	JsonObject, 
+			payload:	DispatcherPayload, 
 			callbacks:	Map<Symbol, DispatcherFunc> 
-):						Array<Promise<JsonObject>> {
+):						Array<Promise<DispatcherResponse>> {
 	var resultPromises = [];
 	callbacks.forEach((callback) => {
 		var result = callback(payload);
