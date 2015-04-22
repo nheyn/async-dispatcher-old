@@ -5,8 +5,7 @@
   "author": "Nick Heyn <nick@heyn.io>",
   "devDependencies": {
     "flow": "*",
-    "babel-jest": "*",
-    "jest-cli": "*"
+    "babel-jest": "*"
   },
   "scripts": {
     "test": "jest"
