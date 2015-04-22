@@ -1,0 +1,18 @@
+{
+  "name": "module-name",
+  "version": "0.1.0",
+  "description": "",
+  "author": "Nick Heyn <nick@heyn.io>",
+  "devDependencies": {
+    "babel-jest": "*",
+    "jest-cli": "*"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
+    "testFileExtensions": ["js"],
+    "moduleFileExtensions": ["js"]
+  }
+}
