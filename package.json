@@ -1,18 +1,22 @@
 {
-  "name": "module-name",
-  "version": "0.1.0",
-  "description": "",
-  "author": "Nick Heyn <nick@heyn.io>",
-  "devDependencies": {
-    "flow": "*",
-    "babel-jest": "*"
-  },
-  "scripts": {
-    "test": "jest"
-  },
-  "jest": {
-    "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
-    "testFileExtensions": ["js"],
-    "moduleFileExtensions": ["js"]
-  }
+	"name": "dispatcher",
+	"version": "0.1.0",
+	"description": "A flux style dispatcher that uses ES6.",
+	"author": "Nick Heyn <nick@heyn.io>",
+	"dependencies": {
+		"babel": "*"
+	},
+	"devDependencies": {
+		"babel-jest": "*",
+		"jest-cli": "*",
+		"flow": "*"
+	},
+	"scripts": {
+		"test": "jest"
+	},
+	"jest": {
+		"scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
+		"testFileExtensions": ["js"],
+		"moduleFileExtensions": ["js"]
+	}
 }

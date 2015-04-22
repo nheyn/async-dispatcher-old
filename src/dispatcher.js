@@ -42,8 +42,8 @@ class Dispatcher {
 	/**
 	 * Dispatch the payload to registered callbacks.
 	 *
-	 * @param {DispatcherPayload}	payload		The payload to send to each of the resisted
-	 *											functions
+	 * @param {DispatcherPayload}	payload				The payload to send to each of the resisted
+	 *													functions
 	 *
 	 * @return {Promise<Array<DispatcherResponse>>}		A promise that contains an array of results
 	 *													from each registered callback
