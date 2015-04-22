@@ -8,15 +8,14 @@
 	},
 	"devDependencies": {
 		"babel-jest": "*",
-		"jest-cli": "*",
-		"flow": "*"
+		"jest-cli": "*"
 	},
 	"scripts": {
 		"test": "jest"
 	},
 	"jest": {
 		"scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
-		"testFileExtensions": ["js"],
-		"moduleFileExtensions": ["js"]
+		"testFileExtensions": ["es6", "js"],
+		"moduleFileExtensions": ["js", "json", "es6"]
 	}
 }
