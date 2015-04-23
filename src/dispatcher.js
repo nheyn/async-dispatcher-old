@@ -23,7 +23,7 @@ class Dispatcher {
 	 * @return {Symbol}						The symbol to use to unregister the callback
 	 */
 	register(callback: DispatcherFunc): Symbol {
-		var newSym = Symbol();
+		const newSym = Symbol();
 		this._callbacks.set(newSym, callback);
 		return newSym;
 	}
@@ -71,7 +71,7 @@ class NetworkDispatcher extends Dispatcher {
 	//	"Private/Protected" Dispatcher Methods
 	/*--------------------------------------------------------------------------------------------*/
 	_getSeverCallbacks(): Map<Symbol, DispatcherFunc> {
-		var callbacks = new Map();
+		const callbacks = new Map();
 		this._serverCallbackSymbols.forEach((sym) => {
 			if(super._callbacks.has(sym)) callbacks.set(sym, super._callbacks.get(sym));
 		});
@@ -98,7 +98,7 @@ class ServerDispatcher extends NetworkDispatcher {
 	 * @return {Symbol}						The symbol to use to unregister the callback
 	 */
 	registerForServer(callback: DispatcherFunc): Symbol {
-		var sym = super.register(callback);
+		const sym = super.register(callback);
 		super._serverCallbackSymbols.push(sym);
 		return sym;
 	}
@@ -114,7 +114,7 @@ class ServerDispatcher extends NetworkDispatcher {
 	 *												each registered callback, that return something.
 	 */
 	dispatchForSeverRequest(payload: DispatcherPayload): Promise<DispatcherResponse> {
-		var callbacks = super._getSeverCallbacks(payload);
+		const callbacks = super._getSeverCallbacks(payload);
 		return Promise.all(callbackMapToPromiseArray(payload, callbacks)).then(this._encode);
 	}
 }
@@ -151,7 +151,7 @@ class ClientDispatcher extends NetworkDispatcher {
 		}
 
 		// Create reference symbol
-		var sym = Symbol();
+		const sym = Symbol();
 		super._serverCallbackSymbols.push(sym);
 		return sym;
 	}
@@ -161,7 +161,7 @@ class ClientDispatcher extends NetworkDispatcher {
 	/*--------------------------------------------------------------------------------------------*/
 	unregister(sym: Symbol): bool {
 		// Check if normal callback was being removed
-		var index = super._serverCallbackSymbols.indexOf(sym)
+		const index = super._serverCallbackSymbols.indexOf(sym)
 		if(index === -1) return super.unregister(sym);
 
 		// Remove callback symbol
@@ -183,9 +183,9 @@ function callbackMapToPromiseArray(
 			payload:	DispatcherPayload, 
 			callbacks:	Map<Symbol, DispatcherFunc> 
 ):						Array<Promise<DispatcherResponse>> {
-	var resultPromises = [];
+	const resultPromises = [];
 	callbacks.forEach((callback) => {
-		var result = callback(payload);
+		const result = callback(payload);
 		if(!result) return;
 
 		resultPromises.push(Promise.resolve(result));
