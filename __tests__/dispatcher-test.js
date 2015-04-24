@@ -35,17 +35,37 @@ describe('Dispatcher', function() {
 		registerCallbacks(dispatcher, callbacks, (newSym) => symCallbackMap.add(newSym));
 	
 		symSet.forEach((sym) => {
-			var didRemove = dispatcher.unregister(sym);
-
-			// Check unregister returns true when valid sym is removed
-			expect(didRemove).toBe(true);
+			// Check unregister returns true when valid sym is given
+			expect(dispatcher.unregister(sym)).toBe(true);
 
 			// Check unregistered callback has been removed from the dispatcher
 			expect(dispatcher._callbacks.has(sym)).toBe(false);
 		});
 
-		// Check
+		// Check unregister returns false when an invalid sym is given
 		expect(dispatcher.unregister(Symbol()).toBe(false)
+	});
+
+	it('dispatch to one callbacks', function() {
+		//TODO
+	});
+
+	it('dispatch to all callbacks', function() {
+		//TODO
+	});
+
+	it('dispatcher to some callbacks', function() {
+		//TODO
+	});
+
+	it('dispatch to none of the callbacks', function() {
+		//TODO
+	});
+
+	it('dispatch to empty dispatcher', function() {
+		//TODO, new dispatcher
+
+		//TODO, filled and empty dispatcher
 	});
 });
 
@@ -60,8 +80,8 @@ function makeEmptyDispatcher() {
 function makeTestCallbacks() {
 	return [
 		(payload) => payload.a? payload: null,
-		(payload) => payload.b? payload: {},
-		(payload) => payload.c? payload: Promise.resolve(payload)
+		(payload) => payload.b? { payload }: null,
+		(payload) => payload.c? Promise.resolve(payload): Promise.reject(new Error('No .c'));
 	];
 }
 
