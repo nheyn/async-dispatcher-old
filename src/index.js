@@ -5,14 +5,21 @@ var dispatcher = require('./dispatcher.js');
 var dataSource = require('./dataSource.js');
 
 /**
- * //TODO
+ * Create a basic Dispatcher.
+ *
+ * @return	The new dispatcher
  */
 function createDispatcher(): Dispatcher {
 	return new dispatcher.Dispatcher();
 }
 
 /**
- * //TODO
+ * Create a Network Dispatcher that will run on the server.
+ *
+ * @param encode	{DispatcherEncodeFunc}	The functions used to encode results into a single json
+ *											object that is send to the client
+ *
+ * @return									The new server dispatcher
  */
 function createServerDispatcher(encode: DispatcherEncodeFunc): NetworkDispatcher {
 	return new dispatcher.ServerDispatcher({
@@ -22,7 +29,13 @@ function createServerDispatcher(encode: DispatcherEncodeFunc): NetworkDispatcher
 }
 
 /**
- * //TODO
+ * Create a Network Dispatcher that will run on the client.
+ *
+ * @param sendData	{DispatcherSendDataFunc}	
+ * @param decode	{DispatcherDecodeFunc}		The functions used to decode results of the json
+ *												object returned from the server
+ *
+ * @return										The new client dispatcher
  */
 function createClientDispatcher(
 		sendData:	DispatcherSendDataFunc, 
@@ -36,7 +49,9 @@ function createClientDispatcher(
 }
 
 /**
- * //TODO
+ * Create a basic Data Source.
+ *
+ * @return	The new Data Source
  */
 function createDataSource<D>(): DataSource<D> {
 	return new dataSource.DataSource({
@@ -45,7 +60,12 @@ function createDataSource<D>(): DataSource<D> {
 }
 
 /**
- * //TODO
+ * Create a Network Data Source that will run on the server.
+ *
+ * @param encode	{DispatcherEncodeFunc}	The functions used to encode results into a single json
+ *											object that is send to the client
+ *
+ * @return									The new server data source
  */
 function createServerDataSource(encode: DispatcherEncodeFunc): NetworkDataSource {
 	return new dataSource.NetworkDataSource({
@@ -54,14 +74,20 @@ function createServerDataSource(encode: DispatcherEncodeFunc): NetworkDataSource
 }
 
 /**
- * //TODO
+ * Create a Network Data Source that will run on the client.
+ *
+ * @param sendData	{DispatcherSendDataFunc}	
+ * @param decode	{DispatcherDecodeFunc}		The functions used to decode results of the json
+ *												object returned from the server
+ *
+ * @return										The new client Data Source
  */
 function createClientDataSource(
 		sendData:	DispatcherSendDataFunc, 
 		decode:		DispatcherDecodeFunc
 ):					NetworkDataSource {
 	return new dataSource.NetworkDataSource({
-		dataSource: createClientDispatcher(sendData, encode)
+		dataSource: createClientDispatcher(sendData, decode)
 	});
 }
 
