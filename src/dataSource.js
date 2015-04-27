@@ -74,8 +74,8 @@ class NetworkDataSource extends DataSource<NetworkDispatcher> {
 	 */
 	registerForServer(callback: DispatcherFunc): Symbol {
 		//TODO, figure out what is correct es6
-		return this._dispatcher.registerForServer(callback);	//FOR BABEL
-		//return super._dispatcher.registerForServer(callback);	//FOR FLOWTYPE
+		//return this._dispatcher.registerForServer(callback);	//FOR BABEL
+		return super._dispatcher.registerForServer(callback);	//FOR FLOWTYPE
 	}
 }
 
