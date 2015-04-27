@@ -48,7 +48,7 @@ class DataSource<D: Dispatcher> {
 	lookup(query: JsonObject): Promise<JsonObject> {
 		var merge = function(results: Array<JsonObject>): JsonObject {
 			//return Object.assign({}, ...results); // Flow Error: Object.assign Expected object instead of, rest array of spread operand
-
+			// Change to deep merge
 			var mergedObj = {};
 			for(var i = 0; i<results.length; i++) mergedObj = Object.assign(mergedObj, results[i]);
 			return mergedObj;
@@ -73,7 +73,9 @@ class NetworkDataSource extends DataSource<NetworkDispatcher> {
 	 * @return {Symbol}						The symbol to use to unregister the callback
 	 */
 	registerForServer(callback: DispatcherFunc): Symbol {
-		return super._dispatcher.registerForServer(callback);
+		//TODO, figure out what is correct es6
+		return this._dispatcher.registerForServer(callback);	//FOR BABEL
+		//return super._dispatcher.registerForServer(callback);	//FOR FLOWTYPE
 	}
 }
 

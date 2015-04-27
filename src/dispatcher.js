@@ -73,7 +73,9 @@ class NetworkDispatcher extends Dispatcher {
 	_getSeverCallbacks(): Map<Symbol, DispatcherFunc> {
 		var callbacks = new Map();
 		this._serverCallbackSymbols.forEach((sym) => {
-			if(super._callbacks.has(sym)) callbacks.set(sym, super._callbacks.get(sym));
+			//TODO, figure out what is correct es6
+			if(this._callbacks.has(sym)) callbacks.set(sym, this._callbacks.get(sym));		//FOR BABEL
+			//if(super._callbacks.has(sym)) callbacks.set(sym, super._callbacks.get(sym));	//FOR FLOWTYPE
 		});
 		return callbacks;
 	}
@@ -98,8 +100,11 @@ class ServerDispatcher extends NetworkDispatcher {
 	 * @return {Symbol}						The symbol to use to unregister the callback
 	 */
 	registerForServer(callback: DispatcherFunc): Symbol {
-		var sym = super.register(callback);
-		super._serverCallbackSymbols.push(sym);
+		//TODO, figure out what is correct es6
+		var sym = super.register(callback);		//FOR BABEL
+		this._serverCallbackSymbols.push(sym);
+		//var sym = super.register(callback);	//FOR FLOWTYPE
+		//super._serverCallbackSymbols.push(sym);
 		return sym;
 	}
 
@@ -114,7 +119,9 @@ class ServerDispatcher extends NetworkDispatcher {
 	 *												each registered callback, that return something.
 	 */
 	dispatchForSeverRequest(payload: DispatcherPayload): Promise<DispatcherResponse> {
-		var callbacks = super._getSeverCallbacks(payload);
+		//TODO, figure out what is correct es6
+		var callbacks = this._getSeverCallbacks(payload);		//FOR BABEL
+		//var callbacks = super._getSeverCallbacks(payload);	//FOR FLOWTYPE
 		return Promise.all(callbackMapToPromiseArray(payload, callbacks)).then(this._encode);
 	}
 }
@@ -145,14 +152,20 @@ class ClientDispatcher extends NetworkDispatcher {
 	registerForServer(callback: DispatcherFunc): Symbol {
 		// Register send callback if this is the first sever callback
 		if(!this._serverSymbol) {
-			this._serverSymbol = super.register(
+			//TODO, figure out what is correct es6
+			this._serverSymbol = this.register(		//FOR BABEL
 				(payload) => Promise.resolve(this._sendData(payload)).then(this._decode)
 			);
+			/*this._serverSymbol = super.register(	//FOR FLOWTYPE
+				(payload) => Promise.resolve(this._sendData(payload)).then(this._decode)
+			);*/
 		}
 
 		// Create reference symbol
 		var sym = Symbol();
-		super._serverCallbackSymbols.push(sym);
+		//TODO, figure out what is correct es6
+		this._serverCallbackSymbols.push(sym);	//FOR BABEL
+		super._serverCallbackSymbols.push(sym);	//FOR FLOWTYPE
 		return sym;
 	}
 
@@ -161,18 +174,26 @@ class ClientDispatcher extends NetworkDispatcher {
 	/*--------------------------------------------------------------------------------------------*/
 	unregister(sym: Symbol): bool {
 		// Check if normal callback was being removed
-		var index = super._serverCallbackSymbols.indexOf(sym)
+		//TODO, figure out what is correct es6
+		var index = super._serverCallbackSymbols.indexOf(sym)	//FOR BABEL
 		if(index === -1) return super.unregister(sym);
+		/*var index = super._serverCallbackSymbols.indexOf(sym)	//FOR FLOWTYPE
+		if(index === -1) return super.unregister(sym);*/
 
 		// Remove callback symbol
-		delete super._serverCallbackSymbols[index];
+		//TODO, figure out what is correct es6
+		delete this._serverCallbackSymbols[index];		//FOR BABEL
+		//delete super._serverCallbackSymbols[index];	//FOR FLOWTYPE
 
 		// Check if any server callbacks are still registered
-		if(super._serverCallbackSymbols.length > 0)	return true;
+		//TODO, figure out what is correct es6
+		if(this._serverCallbackSymbols.length > 0)	return true;		//FOR BABEL
+		//if(super._serverCallbackSymbols.length > 0)	return true;	//FOR FLOWTYPE
 
 		// Remove callback if no sever callbacks are still registered
+		var didRemove = super.unregister(this._serverSymbol);
 		this._serverSymbol = null;
-		return this._serverSymbol? super.unregister(this._serverSymbol): false;
+		return didRemove;
 	}
 }
 
