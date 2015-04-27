@@ -73,9 +73,7 @@ class NetworkDataSource extends DataSource<NetworkDispatcher> {
 	 * @return {Symbol}						The symbol to use to unregister the callback
 	 */
 	registerForServer(callback: DispatcherFunc): Symbol {
-		//TODO, figure out what is correct es6
-		//return this._dispatcher.registerForServer(callback);	//FOR BABEL
-		return super._dispatcher.registerForServer(callback);	//FOR FLOWTYPE
+		return super._dispatcher.registerForServer(callback);
 	}
 }
 
