@@ -130,7 +130,6 @@ type ClientDispatcherSettings = {
 };
 function ClientDispatcher(settings: ClientDispatcherSettings) {
 	this._dispatcher = new Dispatcher();
-	this._serverSymbol = null;
 	this._serverCallbacks = [];
 	this._sendData = settings.sendData;
 	this._decode = settings.decode;
@@ -150,19 +149,20 @@ ClientDispatcher.prototype.unregister = function(sym: Symbol): bool {
 
 	// Remove callback symbol
 	delete this._serverCallbacks[index];
-
-	// Check if any server callbacks are still registered
-	if(this._serverCallbacks.length > 0)	return true;
-
-	// Remove callback if no sever callbacks are still registered
-	var didRemove = this._dispatcher.unregister(this._serverSymbol);
-	this._serverSymbol = null;
-	return didRemove;
+	return true;
 };
 
 ClientDispatcher.prototype.dispatch = function(payload:	DispatcherPayload)
 													:	Promise<Array<DispatcherResponse>> {
-	return this._dispatcher.dispatch(payload);
+	return this._dispatcher.dispatch(payload).then((clientResults) => {
+		// If server does not need to be called, then just return client results
+		if(this._serverCallbacks.length === 0) return clientResults;
+
+		// Append server results to client results
+		return this.dispatchToServer(payload).then((serverResults) => {
+			return clientResults.concat(serverResults);
+		});
+	});
 };
 
 /*------------------------------------------------------------------------------------------------*/
@@ -177,22 +177,14 @@ ClientDispatcher.prototype.dispatch = function(payload:	DispatcherPayload)
  * @return {Symbol}						The symbol to use to unregister the callback
  */
 ClientDispatcher.prototype.registerForServer = function(callback: DispatcherFunc): Symbol {
-	// Register send callback if this is the first sever callback
-	if(!this._serverSymbol) {
-		this._serverSymbol = this._dispatcher.register(
-			//TODO, need to merge this result with other server dispatched function
-			//		currently dispatch returns 
-			//			[clientResult, clientResult, [serverResult, serverResult]]
-			//		instead of
-			//			[clientResult, clientResult, serverResult, serverResults]
-			(payload) => Promise.resolve(this._sendData(payload)).then(this._decode)
-		);
-	}
-
 	// Create reference symbol
 	var sym = Symbol();
 	this._serverCallbacks.push(sym);
 	return sym;
+};
+
+ClientDispatcher.prototype.dispatchToServer = function(payload: JsonObject) {
+	return Promise.resolve(this._sendData(payload)).then(this._decode);
 };
 
 /*------------------------------------------------------------------------------------------------*/
