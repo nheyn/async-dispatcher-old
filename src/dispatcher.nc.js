@@ -65,6 +65,7 @@ Dispatcher.prototype.callbacksFor = function(syms: Array<Symbol>): Map<Symbol, D
 //	--- Sever Dispatcher Class ---
 /*------------------------------------------------------------------------------------------------*/
 type ServerDispatcherSettings = {
+	dispatcher: Dispatcher;
 	encode: DispatcherEncodeFunc;
 };
 
@@ -72,9 +73,9 @@ type ServerDispatcherSettings = {
  * The dispatcher sub-class to run on the sever and communicate with the client.
  */
 function ServerDispatcher(settings: ServerDispatcherSettings) {
-	this._dispatcher = new Dispatcher();
-	this._serverCallbacks = [];
+	this._dispatcher = settings.dispatcher;
 	this._encode = settings.encode;
+	this._serverCallbacks = [];
 }
 
 /*------------------------------------------------------------------------------------------------*/
@@ -129,6 +130,7 @@ ServerDispatcher.prototype.dispatchForSeverRequest = function(payload:	Dispatche
 //	--- Client Dispatcher Class ---
 /*------------------------------------------------------------------------------------------------*/
 type ClientDispatcherSettings = {
+	dispatcher: Dispatcher;
 	sendData: DispatcherSendDataFunc; 
 	decode: DispatcherDecodeFunc;
 };
@@ -137,10 +139,10 @@ type ClientDispatcherSettings = {
  * The dispatcher sub-class to run on the client and communicate with the server.
  */
 function ClientDispatcher(settings: ClientDispatcherSettings) {
-	this._dispatcher = new Dispatcher();
-	this._serverCallbacks = [];
+	this._dispatcher = settings.dispatcher;
 	this._sendData = settings.sendData;
 	this._decode = settings.decode;
+	this._serverCallbacks = [];
 }
 
 /*------------------------------------------------------------------------------------------------*/

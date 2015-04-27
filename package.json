@@ -3,6 +3,7 @@
 	"version": "0.1.0",
 	"description": "A flux style dispatcher that uses ES6.",
 	"author": "Nick Heyn <nick@heyn.io>",
+	"main": "src/index.js",
 	"dependencies": {
 		"babel": "*"
 	},
