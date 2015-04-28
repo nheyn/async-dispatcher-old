@@ -16,7 +16,7 @@ function createDispatcher(): Dispatcher {
 /**
  * Create a Network Dispatcher that will run on the server.
  *
- * @param encode	{DispatcherEncodeFunc}	The functions used to encode results into a single json
+ * @param encode	{DispatcherEncodeFunc}	The function used to encode results into a single json
  *											object that is send to the client
  *
  * @return									The new server dispatcher
@@ -31,8 +31,10 @@ function createServerDispatcher(encode: DispatcherEncodeFunc): NetworkDispatcher
 /**
  * Create a Network Dispatcher that will run on the client.
  *
- * @param sendData	{DispatcherSendDataFunc}	
- * @param decode	{DispatcherDecodeFunc}		The functions used to decode results of the json
+ * @param sendData	{DispatcherSendDataFunc}	The function that sends a payload to the server and
+ *												returns a promise that will contains the response
+ *												from the server
+ * @param decode	{DispatcherDecodeFunc}		The function used to decode results of the json
  *												object returned from the server
  *
  * @return										The new client dispatcher
@@ -78,7 +80,9 @@ function createServerDataSource(encode: DispatcherEncodeFunc): NetworkDataSource
 /**
  * Create a Network Data Source that will run on the client.
  *
- * @param sendData	{DispatcherSendDataFunc}	
+ * @param sendData	{DispatcherSendDataFunc}	The function that sends a query to the server and
+ *												returns a promise that will contains the response
+ *												from the server
  * @param decode	{DispatcherDecodeFunc}		The functions used to decode results of the json
  *												object returned from the server
  *

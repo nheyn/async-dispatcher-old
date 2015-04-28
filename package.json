@@ -3,7 +3,7 @@
 	"version": "0.1.0",
 	"description": "A flux style dispatcher that uses ES6.",
 	"author": "Nick Heyn <nick@heyn.io>",
-	"main": "src/index.js",
+	"main": "lib/index.js",
 	"dependencies": {
 		"babel": "*"
 	},
@@ -12,7 +12,8 @@
 		"jest-cli": "*"
 	},
 	"scripts": {
-		"test": "jest"
+		"test": "jest",
+		"prepublish": "babel ./src/ -d ./lib/"
 	},
 	"jest": {
 		"scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
