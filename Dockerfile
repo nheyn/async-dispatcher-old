@@ -1,12 +1,8 @@
 FROM node:0.10
 
-RUN npm install -g babel
-RUN npm install -g jest-cli
+WORKDIR /var/async-dispatcher/
 
-WORKDIR /var/www/
-COPY ./package.json /var/www/
+COPY ./src /var/async-dispatcher/src/
+COPY ./__tests__ /var/async-dispatcher/__tests__/
+COPY ./package.json /var/async-dispatcher/
 RUN npm install
-
-COPY ./src /var/www/src/
-
-EXPOSE 80
