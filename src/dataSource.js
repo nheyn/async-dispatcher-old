@@ -50,14 +50,7 @@ DataSource.prototype.unregister = function(sym: Symbol): bool {
  *									registered callback, that return something.
  */
 DataSource.prototype.lookup = function(query: JsonObject): Promise<JsonObject> {
-	var merge = function(results: Array<JsonObject>): JsonObject {
-		//return Object.assign({}, ...results); // Flow Error: Object.assign Expected object instead of, rest array of spread operand
-		// Change to deep merge
-		var mergedObj = {};
-		for(var i = 0; i<results.length; i++) mergedObj = Object.assign(mergedObj, results[i]);
-		return mergedObj;
-	};
-	return this._dispatcher.dispatch(query).then(merge);
+	return this._dispatcher.dispatch(query).then(mergeJson);
 };
 
 /*------------------------------------------------------------------------------------------------*/
@@ -72,6 +65,7 @@ type NetworkDataSourceSettings = {
  */
 function NetworkDataSource(settings: NetworkDataSourceSettings) {
 	this._dataSource = settings.dataSource;
+	this._dispatcher = this._dataSource._dispatcher;
 }
 
 /*------------------------------------------------------------------------------------------------*/
@@ -86,7 +80,7 @@ NetworkDataSource.prototype.unregister = function(sym: Symbol): bool {
 };
 
 NetworkDataSource.prototype.lookup = function(query: JsonObject): Promise<JsonObject> {
-	return Promise.resolve({});//this._dataSource.lookup(query);
+	return this._dataSource.lookup(query);
 };
 
 /*------------------------------------------------------------------------------------------------*/
@@ -95,17 +89,44 @@ NetworkDataSource.prototype.lookup = function(query: JsonObject): Promise<JsonOb
 /**
  * Register a new lookup function that should only be called on the server.
  *
+ * NOTE: Falls back to regular register if 'registerForServer' is not in the dispatcher
+ *
  * @param {LookupFunction}	lookupFunc	The callback to register
  *
  * @return {Symbol}						The symbol to use to unregister the callback
  */
 NetworkDataSource.prototype.registerForServer = function(callback: DispatcherFunc): Symbol {
-	var dispatcher = this._dataSource._dispatcher;
-	return dispatcher.registerForServer?
-				dispatcher.registerForServer(callback):
-				dispatcher.register(callback);
+	return this._dispatcher.registerForServer?
+				this._dispatcher.registerForServer(callback):
+				this._dispatcher.register(callback);
 };
 
+/**
+ * Lookup data on the server for the given query.
+ *
+ * NOTE: Falls back to regular lookup if 'dispatchForSeverRequest' is not in the dispatcher
+ *
+ * @param {JsonObject}	query		The query to send to each of the resisted functions
+ *
+ * @return {Promise<JsonObject>}	A promise that contains an array of results from each
+ *									registered callback, that return something.
+ */
+NetworkDataSource.prototype.lookupForServerRequest = function(query:	JsonObject)
+																	:	Promise<JsonObject> {
+	return this._dispatcher.dispatchForSeverRequest?
+			this._dispatcher.dispatchForSeverRequest(query):
+			this.lookup(query);
+};
+
+/*------------------------------------------------------------------------------------------------*/
+//	Helper Function
+/*------------------------------------------------------------------------------------------------*/
+function mergeJson(jsonObjects: Array<JsonObject>): JsonObject {
+	//TODO, change to deep merge
+	var mergedObj = {};
+	for(var i = 0; i<jsonObjects.length; i++) mergedObj = Object.assign(mergedObj, jsonObjects[i]);
+	return mergedObj;
+}
 
 /*------------------------------------------------------------------------------------------------*/
 //	Exports
