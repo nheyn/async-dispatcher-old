@@ -5,14 +5,14 @@
 /*------------------------------------------------------------------------------------------------*/
 //	--- Data Source Class ---
 /*------------------------------------------------------------------------------------------------*/
-type DataSourceSettings<D: Dispatcher> = {
-	dispatcher: D;
+type DataSourceSettings = {
+	dispatcher: Dispatcher;
 };
 
 /**
  * A class used to lookup data.
  */
-function DataSource<D: Dispatcher>(settings: DataSourceSettings<D>) {
+function DataSource(settings: DataSourceSettings) {
 	this._dispatcher = settings.dispatcher;
 }
 
@@ -60,15 +60,11 @@ DataSource.prototype.lookup = function(query: JsonObject): Promise<JsonObject> {
 	return this._dispatcher.dispatch(query).then(merge);
 };
 
-DataSource.prototype.getDispatcher = function<D: Dispatcher>(): D {
-	return this._dispatcher;
-};
-
 /*------------------------------------------------------------------------------------------------*/
 //	--- Network Data Source Class ---
 /*------------------------------------------------------------------------------------------------*/
 type NetworkDataSourceSettings = {
-	dataSource: DataSource<NetworkDispatcher>;
+	dataSource: DataSource;
 };
 
 /**
@@ -90,7 +86,7 @@ NetworkDataSource.prototype.unregister = function(sym: Symbol): bool {
 };
 
 NetworkDataSource.prototype.lookup = function(query: JsonObject): Promise<JsonObject> {
-	return this._dataSource.lookup(query);
+	return Promise.resolve({});//this._dataSource.lookup(query);
 };
 
 /*------------------------------------------------------------------------------------------------*/
@@ -104,8 +100,10 @@ NetworkDataSource.prototype.lookup = function(query: JsonObject): Promise<JsonOb
  * @return {Symbol}						The symbol to use to unregister the callback
  */
 NetworkDataSource.prototype.registerForServer = function(callback: DispatcherFunc): Symbol {
-	var dispatcher = this._dataSource.getDispatcher();
-	return dispatcher.registerForServer(callback);
+	var dispatcher = this._dataSource._dispatcher;
+	return dispatcher.registerForServer?
+				dispatcher.registerForServer(callback):
+				dispatcher.register(callback);
 };
 
 

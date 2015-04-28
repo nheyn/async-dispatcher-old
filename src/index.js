@@ -53,7 +53,7 @@ function createClientDispatcher(
  *
  * @return	The new Data Source
  */
-function createDataSource<D>(): DataSource<D> {
+function createDataSource(): DataSource {
 	return new dataSource.DataSource({
 		dispatcher: createDispatcher()
 	});
@@ -69,8 +69,10 @@ function createDataSource<D>(): DataSource<D> {
  */
 function createServerDataSource(encode: DispatcherEncodeFunc): NetworkDataSource {
 	return new dataSource.NetworkDataSource({
-		dataSource: createServerDispatcher(encode)
-	})
+		dataSource: new dataSource.DataSource({
+			dispatcher: createServerDispatcher(encode)
+		})
+	});
 }
 
 /**
@@ -87,7 +89,9 @@ function createClientDataSource(
 		decode:		DispatcherDecodeFunc
 ):					NetworkDataSource {
 	return new dataSource.NetworkDataSource({
-		dataSource: createClientDispatcher(sendData, decode)
+		dataSource: new dataSource.DataSource({
+			dispatcher: createClientDispatcher(sendData, decode)
+		})
 	});
 }
 

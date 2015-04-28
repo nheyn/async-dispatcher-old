@@ -53,14 +53,6 @@ Dispatcher.prototype.dispatch = function(payload:	DispatcherPayload)
 	return Promise.all(callbackMapToPromiseArray(payload, this._callbacks));
 };
 
-Dispatcher.prototype.callbacksFor = function(syms: Array<Symbol>): Map<Symbol, DispatcherFunc> {
-	var callbacks = new Map();
-	syms.forEach((sym) => {
-		if(this._callbacks.has(sym)) callbacks.set(sym, this._callbacks.get(sym));
-	});
-	return callbacks;
-};
-
 /*------------------------------------------------------------------------------------------------*/
 //	--- Sever Dispatcher Class ---
 /*------------------------------------------------------------------------------------------------*/
@@ -122,7 +114,7 @@ ServerDispatcher.prototype.registerForServer = function(callback: DispatcherFunc
 ServerDispatcher.prototype.dispatchForSeverRequest = function(payload:	DispatcherPayload)
 																	: Promise<DispatcherResponse> {
 	
-	var callbacks = this._dispatcher.callbacksFor(this._serverCallbacks);
+	var callbacks = getCallbacksFor(this._dispatcher, this._serverCallbacks);
 	return Promise.all(callbackMapToPromiseArray(payload, callbacks)).then(this._encode);
 }
 
@@ -212,6 +204,14 @@ function callbackMapToPromiseArray(
 		resultPromises.push(Promise.resolve(result));
 	});
 	return resultPromises;
+}
+
+function getCallbacksFor(dispatcher: Dispatcher, syms: Array<Symbol>): Map<Symbol, DispatcherFunc> {
+	var callbacks = new Map();
+	syms.forEach((sym) => {
+		if(dispatcher._callbacks.has(sym)) callbacks.set(sym, dispatcher._callbacks.get(sym));
+	});
+	return callbacks;
 }
 
 /*------------------------------------------------------------------------------------------------*/
