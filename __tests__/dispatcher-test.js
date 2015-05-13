@@ -3,7 +3,7 @@ jest.dontMock('../src/dispatcher.js');
 describe('Dispatcher', function() {
 	it('registers callbacks', function() {
 		//TODO, debug test
-		/*var dispatcher = makeEmptyDispatcher();
+		var dispatcher = makeEmptyDispatcher();
 		var callbacks = makeTestCallbacks();
 
 		var symCallbackMap = new Map();
@@ -18,16 +18,16 @@ describe('Dispatcher', function() {
 			expect(dispatcher._callbacks.has(sym)).toBe(true);
 
 			// Check symbol has the correct callback
-			expect(dispatcher._callbacks.get(sym)).toBe(callback[callbackIndex]);
-		});*/
+			expect(dispatcher._callbacks.get(sym)).toBe(callbacks[callbackIndex]);
+		});
 	});
 
 	it('unregisters callbacks', function() {
 		//TODO, debug test
-		/*var dispatcher = makeEmptyDispatcher();
+		var dispatcher = makeEmptyDispatcher();
 		var callbacks = makeTestCallbacks();
 		var symSet = new Set();
-		registerCallbacks(dispatcher, callbacks, (newSym) => symCallbackMap.add(newSym));
+		registerCallbacks(dispatcher, callbacks, (newSym) => symSet.add(newSym));
 	
 		symSet.forEach((sym) => {
 			// Check unregister returns true when valid sym is given
@@ -39,7 +39,7 @@ describe('Dispatcher', function() {
 
 		// Check unregister returns false when an invalid sym is given
 		var someSym = Symbol();
-		expect(dispatcher.unregister(someSym).toBe(false));*/
+		expect(dispatcher.unregister(someSym)).toBe(false);
 	});
 
 	it('dispatch to one callbacks', function() {
