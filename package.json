@@ -19,5 +19,6 @@
 		"scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
 		"setupEnvScriptFile": "<rootDir>/jestEnvironment.js",
 		"unmockedModulePathPatterns": ["core-js/.*"]
-	}
+	},
+	"license": "MIT"
 }
