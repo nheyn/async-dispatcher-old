@@ -28,7 +28,8 @@ TODO: Finish writing tests
 TODO: Get documentation from code
 
 ###Plans
-* Write Usage
+* Write usage
 * Get documentation from code
 * Finish writing tests
-* Add *waitFor()* methods to handle timing / computing derived data from other callback in the dispatcher or data source.
+* Add *onUpdate(callback)* register in data source
+* Add *waitFor()* methods to handle timing / computing derived data from other callback in the dispatcher or data source
