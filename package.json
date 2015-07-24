@@ -1,6 +1,6 @@
 {
 	"name": "async-dispatcher",
-	"version": "1.0.0",
+	"version": "0.2.0",
 	"description": "A flux style dispatcher that uses ES6.",
 	"author": "Nick Heyn <nick@heyn.io>",
 	"main": "lib/index.js",

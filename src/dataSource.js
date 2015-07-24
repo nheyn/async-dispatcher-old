@@ -53,6 +53,20 @@ DataSource.prototype.lookup = function(query: JsonObject): Promise<JsonObject> {
 	return this._dispatcher.dispatch(query).then(mergeJson);
 };
 
+/**
+ * Get a new data source that adds the given query (using 'Object.assign') when '.lookup' is
+ * called.
+ *
+ * @param {JsonObject}	query	The query to add to '.lookup' calls
+ *
+ * @return {DataSource}			The cloned data source
+ */
+DataSource.prototype.cloneWithQuery = function(query: JsonObject): DataSource {
+	return new DataSource({
+		dispatcher: this._dispatcher.cloneWithPayload(query)
+	});
+};
+
 /*------------------------------------------------------------------------------------------------*/
 //	--- Network Data Source Class ---
 /*------------------------------------------------------------------------------------------------*/
@@ -83,6 +97,12 @@ NetworkDataSource.prototype.lookup = function(query: JsonObject): Promise<JsonOb
 	return this._dataSource.lookup(query);
 };
 
+NetworkDataSource.prototype.cloneWithQuery = function(query: JsonObject): DataSource {
+	return new NetworkDataSource({
+		dataSource: this._dataSource.cloneWithQuery(query)
+	});
+};
+
 /*------------------------------------------------------------------------------------------------*/
 //	Network Data Source Methods
 /*------------------------------------------------------------------------------------------------*/
@@ -97,8 +117,8 @@ NetworkDataSource.prototype.lookup = function(query: JsonObject): Promise<JsonOb
  */
 NetworkDataSource.prototype.registerForServer = function(callback: DispatcherFunc): Symbol {
 	return this._dispatcher.registerForServer?
-				this._dispatcher.registerForServer(callback):
-				this._dispatcher.register(callback);
+			this._dispatcher.registerForServer(callback):
+			this._dispatcher.register(callback);
 };
 
 /**

@@ -10,6 +10,7 @@
  */
 function Dispatcher() {
 	this._callbacks = new Map();
+	this._basePayload = {};
 }
 
 /*------------------------------------------------------------------------------------------------*/
@@ -50,7 +51,30 @@ Dispatcher.prototype.unregister = function(sym: Symbol): bool {
  */
 Dispatcher.prototype.dispatch = function(payload:	DispatcherPayload)
 												:	Promise<Array<DispatcherResponse>> {
-	return Promise.all(callbackMapToPromiseArray(payload, this._callbacks));
+	return Promise.all(callbackMapToPromiseArray(
+		this._getCombinedPayload(payload),
+		this._callbacks
+	));
+};
+
+/**
+ * Get a new dispatcher that adds the given payload (using 'Object.assign') when '.dispatch' is
+ * called.
+ *
+ * @param {DispatcherPayload}	payload	The payload to add to '.dispatch' calls
+ *
+ * @return {Dispatcher}			The cloned dispatcher
+ */
+Dispatcher.prototype.cloneWithPayload = function(payload: DispatcherPayload): Dispatcher {
+	var clonedDispatcher = new Dispatcher();
+	clonedDispatcher._basePayload = this._getCombinedPayload(payload);
+	clonedDispatcher._callbacks = this._callbacks;
+
+	return clonedDispatcher;
+};
+
+Dispatcher.prototype._getCombinedPayload = function(payload: DispatcherPayload): DispatcherPayload {
+	return Object.assign({}, this._basePayload, payload);
 };
 
 /*------------------------------------------------------------------------------------------------*/
@@ -86,6 +110,17 @@ ServerDispatcher.prototype.dispatch = function(payload:	DispatcherPayload)
 	return this._dispatcher.dispatch(payload);
 };
 
+ServerDispatcher.prototype.cloneWithPayload = function(payload: DispatcherPayload)
+																				: ServerDispatcher {
+	var clonedDispatcher = new ServerDispatcher({
+		dispatcher: this._dispatcher.cloneWithPayload(payload),
+		encode: this._encode
+	});
+	clonedDispatcher._serverCallbacks = this._serverCallbacks;
+
+	return clonedDispatcher;
+};
+
 /*------------------------------------------------------------------------------------------------*/
 //	Sever Dispatcher Methods
 /*------------------------------------------------------------------------------------------------*/
@@ -105,7 +140,7 @@ ServerDispatcher.prototype.registerForServer = function(callback: DispatcherFunc
 /**
  * Dispatch the payload to callbacks that are registered for the server.
  *
- * @param {DispatcherPayload}		payload		The payload to send to each of the resisted 
+ * @param {DispatcherPayload}		payload		The payload to send to each of the resisted
  *												functions
  *
  * @return {Promise<Array<DispatcherResponse>>}	A promise that contains an array of results from
@@ -113,9 +148,11 @@ ServerDispatcher.prototype.registerForServer = function(callback: DispatcherFunc
  */
 ServerDispatcher.prototype.dispatchForSeverRequest = function(payload:	DispatcherPayload)
 																	: Promise<DispatcherResponse> {
-	
 	var callbacks = getCallbacksFor(this._dispatcher, this._serverCallbacks);
-	return Promise.all(callbackMapToPromiseArray(payload, callbacks)).then(this._encode);
+	return Promise.all(callbackMapToPromiseArray(
+		this._dispatcher._getCombinedPayload(payload),
+		callbacks
+	)).then(this._encode);
 }
 
 /*------------------------------------------------------------------------------------------------*/
@@ -123,7 +160,7 @@ ServerDispatcher.prototype.dispatchForSeverRequest = function(payload:	Dispatche
 /*------------------------------------------------------------------------------------------------*/
 type ClientDispatcherSettings = {
 	dispatcher: Dispatcher;
-	sendData: DispatcherSendDataFunc; 
+	sendData: DispatcherSendDataFunc;
 	decode: DispatcherDecodeFunc;
 };
 
@@ -167,6 +204,18 @@ ClientDispatcher.prototype.dispatch = function(payload:	DispatcherPayload)
 	});
 };
 
+ClientDispatcher.prototype.cloneWithPayload = function(payload: DispatcherPayload)
+																				: ClientDispatcher {
+	var clonedDispatcher = new ClientDispatcher({
+		dispatcher: this._dispatcher.cloneWithPayload(payload),
+		sendData: this._sendData,
+		decode: this._decode,
+	});
+	clonedDispatcher._serverCallbacks = this._serverCallbacks;
+
+	return clonedDispatcher;
+};
+
 /*------------------------------------------------------------------------------------------------*/
 //	Sever Dispatcher Methods
 /*------------------------------------------------------------------------------------------------*/
@@ -193,8 +242,8 @@ ClientDispatcher.prototype.dispatchToServer = function(payload: JsonObject) {
 //	--- Helper functions ---
 /*------------------------------------------------------------------------------------------------*/
 function callbackMapToPromiseArray(
-			payload:	DispatcherPayload, 
-			callbacks:	Map<Symbol, DispatcherFunc> 
+			payload:	DispatcherPayload,
+			callbacks:	Map<Symbol, DispatcherFunc>
 ):						Array<Promise<DispatcherResponse>> {
 	var resultPromises = [];
 	callbacks.forEach((callback) => {
