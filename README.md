@@ -1,3 +1,6 @@
+**NOTE**
+*This project is no longer supported, see [isomorphic-dispatcher](https://github.com/nheyn/isomorphic-dispatcher) for the similar features*
+
 # Async Dispatcher
 *A flux style Dispatcher that uses ES6 Promises*
 
